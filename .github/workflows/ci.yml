@@ -1,4 +1,5 @@
 name: CI
+run-name: "CI ${{ inputs.leg || github.event_name }} ${{ inputs.racecar_run }}"
 on:
   push:
     branches:
@@ -8,6 +9,24 @@ on:
       - master
   merge_group:
 
+  workflow_dispatch:
+    inputs:
+      leg:
+        description: "baseline (uninstrumented) or instrumented (under chalk/curiosity)"
+        type: choice
+        options: [instrumented, baseline]
+        default: baseline
+      profile:
+        description: "CrashOverride chalk profile"
+        type: string
+        default: curiosity-tests-racecar
+      racecar_run:
+        description: "racecar correlation token, echoed into the run name"
+        type: string
+        default: ""
+
+env:
+  CHALK_ON: ${{ inputs.leg == 'instrumented' }}
 jobs:
   run_linters:
     name: Run Linters
@@ -151,7 +170,7 @@ jobs:
           context: .
           tags: ${{ steps.docker_meta.outputs.tags }}
           labels: ${{ steps.docker_meta.outputs.labels }}
-          push: ${{ github.event_name != 'pull_request' }}
+          push: false   # racecar: build only, never push
           build-args: |
             NODE_VERSION=${{ steps.deps.outputs.NODE_VERSION }}
             RUST_VERSION=${{ steps.deps.outputs.RUST_VERSION }}
