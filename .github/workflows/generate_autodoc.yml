@@ -1,8 +1,6 @@
 name: Generate Documentation
 
 on:
-  schedule:
-  - cron: "0 0 * * *" # Every day at the very start of the day. Except it happens an hour and a half later because actions backlog
   workflow_dispatch:
 
 jobs:
